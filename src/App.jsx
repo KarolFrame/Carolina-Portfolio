@@ -7,6 +7,7 @@ import AppShell from './Components/AppShell';
 function App() {
   return (
     <BrowserRouter>
+    <div className="grid-background fixed inset-0 z-0"></div>
     <AppShell>
       <Routes>
         <Route path="/" element={<Home />} />

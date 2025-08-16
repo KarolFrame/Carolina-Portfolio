@@ -6,7 +6,7 @@ function AppShell({ children }) {
         <>
           <Navbar />
           <LeftBar />
-            <main className="mt-16 ml-16 p-4">
+            <main className="mt-16 ml-16 p-4 flex flex-col justify-center h-[calc(100vh-4rem)] grid-background">
                 {children}
             </main>
         </>

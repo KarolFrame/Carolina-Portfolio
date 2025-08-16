@@ -15,7 +15,7 @@ function LeftBar() {
         { path: '/contact', icon: HiChatBubbleLeftEllipsis, text: 'Contact' }
     ];
     return (
-        <nav className="fixed top-16 left-0 z-10 h-full bg-primary p-4 shadow-lg flex flex-col justify-between w-16">
+        <nav className="fixed top-16 left-0 z-10 p-4 shadow-lg flex flex-col justify-between w-16 h-[calc(100vh-4rem)] bg-primary">
         <div className="flex flex-col items-center gap-5">
         {navItems.map((item) => {
           const Icon = item.icon;
