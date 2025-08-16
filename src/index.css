@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-primary: #aa6fd1;
+    --color-background: #ffffff;
+    --bg-button: #e6e6e6;
+    --color-text: #000000;
+    --color-primary-blue: #6f9bd1;
+    --color-primary-cyan: #6fd1c3;
+    --color-primary-green: #6fd17d;
+    --color-primary-yellow: #d1b76f;
+    --color-primary-orange: #d1886f;
+    --color-primary-red: #d16f88;
+    --color-primary-purple: #aa6fd1;
+}
+
+nav{
+    background-color: var(--color-background);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-primary);
+}
+
+.dark {
+    /* Modo oscuro */
+    --color-background: #252525;
+    --bg-button: #2e2e2e;
+    color: var(--color-primary);
+}
+
+.buttonTranspatent:hover{
+    background-color: var(--bg-button);
+}
+
+.selectedBar{
+    background-color: var(--bg-button);
+}
