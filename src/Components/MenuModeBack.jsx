@@ -69,7 +69,7 @@ const MenuModeBack = () =>{
               >
                 <motion.li
                   className="p-2 flex items-center space-x-2 cursor-pointer buttonTranspatent rounded-md"
-                  onClick={() => { setModo("dia"); setModoOscuro(false); }}
+                  onClick={() => { setModo("dia"); setModoOscuro(false); setModoCustom(false) }}
                   variants={itemVariants}
                 >
                   <HiMiniSun />

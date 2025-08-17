@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './Pages/Home';
 import AppShell from './Components/AppShell';
+import Profile from './Pages/Profile';
 
 function App() {
   return (
@@ -11,6 +12,8 @@ function App() {
     <AppShell>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        
       </Routes>
     </AppShell>
     </BrowserRouter>
