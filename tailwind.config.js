@@ -8,6 +8,7 @@ const myColors = {
   'primary-orange': 'var(--color-primary-orange)',
   'primary-red': 'var(--color-primary-red)',
   'primary-purple': 'var(--color-primary-purple)',
+  'primary-custom': 'var(--color-primary-custom)',
 };
 
 /** @type {import('tailwindcss').Config} */

@@ -1,190 +1,259 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Window = ({ children, initialWidth = 600, initialHeight = 400, initialX = 100, initialY = 100, title = 'Mi Ventana' }) => {
-    const [x, setX] = useState(initialX);
-    const [y, setY] = useState(initialY);
-    const [width, setWidth] = useState(initialWidth);
-    const [height, setHeight] = useState(initialHeight);
-  
-    // Estado para rastrear si estamos arrastrando o redimensionando
-    const [isDragging, setIsDragging] = useState(false);
-    const [isResizing, setIsResizing] = useState({
-      top: false, bottom: false, left: false, right: false,
-      topLeft: false, topRight: false, bottomLeft: false, bottomRight: false
-    });
-  
-    // Referencia para el elemento de la ventana
-    const windowRef = useRef(null);
-  
-    // useEffect para manejar los escuchadores de eventos al montar y limpiar al desmontar
-    useEffect(() => {
-      // Manejador de eventos para arrastrar y redimensionar
-      const handleMouseMove = (e) => {
-        e.preventDefault();
-  
-        // Lógica para arrastrar
-        if (isDragging) {
-          setX(e.clientX - isDragging.offsetX);
-          setY(e.clientY - isDragging.offsetY);
-        }
-  
-        // Lógica para redimensionar
-        if (isResizing.right) {
-          setWidth(e.clientX - windowRef.current.offsetLeft);
-        }
-        if (isResizing.bottom) {
-          setHeight(e.clientY - windowRef.current.offsetTop);
-        }
-        if (isResizing.left) {
-          const newWidth = width + (x - e.clientX);
-          const newX = e.clientX;
-          if (newWidth > 150) { // Restricción de ancho mínimo
-            setWidth(newWidth);
-            setX(newX);
-          }
-        }
-        if (isResizing.top) {
-          const newHeight = height + (y - e.clientY);
-          const newY = e.clientY;
-          if (newHeight > 100) { // Restricción de altura mínima
-            setHeight(newHeight);
-            setY(newY);
-          }
-        }
-        if (isResizing.bottomRight) {
-          setWidth(e.clientX - windowRef.current.offsetLeft);
-          setHeight(e.clientY - windowRef.current.offsetTop);
-        }
-        if (isResizing.bottomLeft) {
-          const newWidth = width + (x - e.clientX);
-          const newX = e.clientX;
-          setWidth(newWidth);
-          if (newWidth > 150) {
-            setX(newX);
-          }
-          setHeight(e.clientY - windowRef.current.offsetTop);
-        }
-        if (isResizing.topRight) {
-          setWidth(e.clientX - windowRef.current.offsetLeft);
-          const newHeight = height + (y - e.clientY);
-          const newY = e.clientY;
-          setHeight(newHeight);
-          if (newHeight > 100) {
-            setY(newY);
-          }
-        }
-        if (isResizing.topLeft) {
-          const newWidth = width + (x - e.clientX);
-          const newX = e.clientX;
-          setWidth(newWidth);
-          if (newWidth > 150) {
-            setX(newX);
-          }
-          const newHeight = height + (y - e.clientY);
-          const newY = e.clientY;
-          setHeight(newHeight);
-          if (newHeight > 100) {
-            setY(newY);
-          }
-        }
-      };
-  
-      // Manejador de eventos para detener el arrastre/redimensionamiento
-      const handleMouseUp = () => {
-        setIsDragging(false);
-        setIsResizing({});
-      };
-  
-      // Añadir escuchadores de eventos a la ventana
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      
-      // Añadir escuchadores de eventos táctiles para móvil
-      window.addEventListener('touchmove', handleMouseMove);
-      window.addEventListener('touchend', handleMouseUp);
-  
-      // Función de limpieza
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-        window.removeEventListener('touchmove', handleMouseMove);
-        window.removeEventListener('touchend', handleMouseUp);
-      };
-    }, [isDragging, isResizing, x, y, width, height]);
-  
-    // Manejar el evento mousedown en el encabezado para empezar a arrastrar
-    const handleDragStart = (e) => {
+const Window = ({
+  children,
+  initialWidth = 600,
+  initialHeight = 400,
+  initialX = 100,
+  initialY = 100,
+  title = "Mi Ventana",
+  container,}) => {
+  const [x, setX] = useState(initialX);
+  const [y, setY] = useState(initialY);
+  const [width, setWidth] = useState(initialWidth);
+  const [height, setHeight] = useState(initialHeight);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(null);
+
+  const startRef = useRef(null);
+  const windowRef = useRef(null);
+
+  const [isActivated, setIsActivated] = useState(true);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
       e.preventDefault();
-      setIsDragging({
-        offsetX: e.clientX - x,
-        offsetY: e.clientY - y
-      });
+      const clientX = e.clientX ?? (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY ?? (e.touches && e.touches[0].clientY);
+
+      if (isDragging && startRef.current) {
+        const { mouseX, mouseY, startX, startY } = startRef.current;
+        const dx = clientX - mouseX;
+        const dy = clientY - mouseY;
+        setX(startX + dx);
+        setY(startY + dy);
+      }
+
+      if (isResizing && startRef.current) {
+        const {
+          mouseX,
+          mouseY,
+          startX,
+          startY,
+          startWidth,
+          startHeight,
+          direction,
+        } = startRef.current;
+
+        const dx = clientX - mouseX;
+        const dy = clientY - mouseY;
+
+        if (direction === "right") {
+          setWidth(Math.max(150, startWidth + dx));
+        }
+        if (direction === "bottom") {
+          setHeight(Math.max(100, startHeight + dy));
+        }
+        if (direction === "left") {
+          const newWidth = Math.max(150, startWidth - dx);
+          setWidth(newWidth);
+          setX(startX + dx);
+        }
+        if (direction === "top") {
+          const newHeight = Math.max(100, startHeight - dy);
+          setHeight(newHeight);
+          setY(startY + dy);
+        }
+        if (direction === "bottomRight") {
+          setWidth(Math.max(150, startWidth + dx));
+          setHeight(Math.max(100, startHeight + dy));
+        }
+        if (direction === "bottomLeft") {
+          const newWidth = Math.max(150, startWidth - dx);
+          setWidth(newWidth);
+          setX(startX + dx);
+          setHeight(Math.max(100, startHeight + dy));
+        }
+        if (direction === "topRight") {
+          setWidth(Math.max(150, startWidth + dx));
+          const newHeight = Math.max(100, startHeight - dy);
+          setHeight(newHeight);
+          setY(startY + dy);
+        }
+        if (direction === "topLeft") {
+          const newWidth = Math.max(150, startWidth - dx);
+          setWidth(newWidth);
+          setX(startX + dx);
+          const newHeight = Math.max(100, startHeight - dy);
+          setHeight(newHeight);
+          setY(startY + dy);
+        }
+      }
     };
-  
-    // Manejar el evento mousedown en un manejador de redimensionamiento
-    const handleResizeStart = (direction) => (e) => {
-      e.preventDefault();
-      setIsResizing({ [direction]: true });
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setIsResizing(null);
     };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("touchmove", handleMouseMove);
+    window.addEventListener("touchend", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleMouseMove);
+    window.removeEventListener("touchend", handleMouseUp);
+    };}, [isDragging, isResizing]);
+
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    const clientX = e.clientX ?? e.touches[0].clientX;
     
-    // Manejadores de redimensionamiento para cada lado y esquina
-    const resizeHandles = [
-      { direction: 'top', className: 'top-handle', onMouseDown: handleResizeStart('top') },
-      { direction: 'bottom', className: 'bottom-handle', onMouseDown: handleResizeStart('bottom') },
-      { direction: 'left', className: 'left-handle', onMouseDown: handleResizeStart('left') },
-      { direction: 'right', className: 'right-handle', onMouseDown: handleResizeStart('right') },
-      { direction: 'topLeft', className: 'top-left-handle', onMouseDown: handleResizeStart('topLeft') },
-      { direction: 'topRight', className: 'top-right-handle', onMouseDown: handleResizeStart('topRight') },
-      { direction: 'bottomLeft', className: 'bottom-left-handle', onMouseDown: handleResizeStart('bottomLeft') },
-      { direction: 'bottomRight', className: 'bottom-right-handle', onMouseDown: handleResizeStart('bottomRight') },
-    ];
-  
-    return (
+    const clientY = e.clientY ?? e.touches[0].clientY;
+
+    startRef.current = {
+      mouseX: clientX,
+      mouseY: clientY,
+      startX: x,
+      startY: y,
+    };
+    setIsDragging(true);
+  };
+
+  const handleResizeStart = (direction) => (e) => {
+    e.preventDefault();
+    const clientX = e.clientX ?? e.touches[0].clientX;
+    const clientY = e.clientY ?? e.touches[0].clientY;
+
+    startRef.current = {
+      mouseX: clientX,
+      mouseY: clientY,
+      startX: x,
+      startY: y,
+      startWidth: width,
+      startHeight: height,
+      direction,
+    };
+    setIsResizing(direction);
+  };
+
+  const resizeHandles = [
+    { direction: "top", className: "top-handle" },
+    { direction: "bottom", className: "bottom-handle" },
+    { direction: "left", className: "left-handle" },
+    { direction: "right", className: "right-handle" },
+    { direction: "topLeft", className: "top-left-handle" },
+    { direction: "topRight", className: "top-right-handle" },
+    { direction: "bottomLeft", className: "bottom-left-handle" },
+    { direction: "bottomRight", className: "bottom-right-handle" },
+  ];
+
+  const _onExit = () =>{
+    setIsActivated(false);
+  }
+  const _onFullScreen = () =>{
+    const containerWidth = container.current.offsetWidth;
+    const containerHeight = container.current.offsetHeight;
+
+    const newWidth = containerWidth;
+    const newHeight = containerHeight;
+
+    const newX = (containerWidth - newWidth) / 2;
+    const newY = (containerHeight - newHeight) / 2;
+
+    setWidth(newWidth);
+    setHeight(newHeight);
+    setX(newX);
+    setY(newY);
+  }
+
+  const _onMiniScreen = () =>{
+    const containerWidth = container.current.offsetWidth;
+    const containerHeight = container.current.offsetHeight;
+
+    const newWidth = containerWidth * 0.8;
+    const newHeight = containerHeight * 0.8;
+
+    const newX = (containerWidth - newWidth) / 2;
+    const newY = (containerHeight - newHeight) / 2;
+
+    setWidth(newWidth);
+    setHeight(newHeight);
+    setX(newX);
+    setY(newY);
+  }
+
+  return (<>
+    <AnimatePresence>
+    {isActivated && 
+      (<motion.div
+          className="absolute"
+          style={{
+            left: 0,
+            top: 0,
+            width: width,
+            height: height,
+          }}
+          initial={{
+            opacity: 0,
+            scale: 0,
+            x: x-2000,
+            y: y-600,
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            x: x,
+            y: y,
+          }}
+          transition={{ duration: .5 }}
+          exit={{ 
+            opacity: 0,
+            scale: 0,
+            x: x-2000,
+            y: y-600,}}
+        >
       <div
         ref={windowRef}
         className="absolute bg-background shadow-2xl rounded-lg overflow-hidden flex flex-col window-background"
         style={{
-          left: x,
-          top: y,
+          left: 0,
+          top: 0,
           width: width,
           height: height,
-          minWidth: '150px',
-          minHeight: '100px',
+          minWidth: "150px",
+          minHeight: "100px",
         }}
       >
-        <div 
+        <div
           className="flex items-center justify-between p-2 bg-primary cursor-move shadow-xl window-header"
           onMouseDown={handleDragStart}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            setIsDragging({
-              offsetX: e.touches[0].clientX - x,
-              offsetY: e.touches[0].clientY - y
-            });
-          }}
+          onTouchStart={handleDragStart}
         >
-          <span className="font-semibold text-sm select-none">{title}</span>
-          <button className="">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-          </button>
+          <div className="flex flex-row gap-2 items-center">
+            <button className="w-3 h-3 rounded-full bg-red-600" onClick={_onExit}></button>
+            <button className="w-3 h-3 rounded-full bg-yellow-600" onClick={ _onMiniScreen}></button>
+            <button className="w-3 h-3 rounded-full bg-green-600" onClick={ _onFullScreen}></button>
+            <span className="font-semibold text-base select-none">{title}</span>
+          </div>
         </div>
-  
-        <div className="flex-1 p-4 overflow-auto">
-          {children}
-        </div>
-  
-        {resizeHandles.map(({ direction, className, onMouseDown }) => (
+
+        <div className="flex-1 p-4 overflow-auto">{children}</div>
+
+        {resizeHandles.map(({ direction, className }) => (
           <div
             key={direction}
             className={`absolute ${className}`}
-            onMouseDown={onMouseDown}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              setIsResizing({ [direction]: true });
-            }}
+            onMouseDown={handleResizeStart(direction)}
+            onTouchStart={handleResizeStart(direction)}
           />
         ))}
-  
+
         <style>{`
           .top-handle { top: -5px; left: 0; width: 100%; height: 10px; cursor: ns-resize; }
           .bottom-handle { bottom: -5px; left: 0; width: 100%; height: 10px; cursor: ns-resize; }
@@ -194,13 +263,16 @@ const Window = ({ children, initialWidth = 600, initialHeight = 400, initialX = 
           .top-right-handle { top: -5px; right: -5px; width: 15px; height: 15px; cursor: nesw-resize; }
           .bottom-left-handle { bottom: -5px; left: -5px; width: 15px; height: 15px; cursor: nesw-resize; }
           .bottom-right-handle { bottom: -5px; right: -5px; width: 15px; height: 15px; cursor: nwse-resize; }
-          
-          .top-handle, .bottom-handle, .left-handle, .right-handle, .top-left-handle, .top-right-handle, .bottom-left-handle, .bottom-right-handle {
-              z-index: 10;
+
+          .top-handle, .bottom-handle, .left-handle, .right-handle,
+          .top-left-handle, .top-right-handle, .bottom-left-handle, .bottom-right-handle {
+            z-index: 10;
           }
         `}</style>
       </div>
-    );
-  };
+      </motion.div>)}
+    </AnimatePresence>
+  </>);  
+};
 
-  export default Window;
+export default Window;

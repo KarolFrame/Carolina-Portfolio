@@ -6,6 +6,7 @@
 :root {
     --color-primary: #aa6fd1;
     --color-background: #ffffff;
+    --color-background-custom: #aa6fd1;
     --bg-button: #e6e6e6;
     --color-text: #000000;
     --color-primary-blue: #6f9bd1;
@@ -21,6 +22,10 @@ nav{
     background-color: var(--color-background);
 }
 
+.background-color{
+    background-color: var(--color-background);
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -29,7 +34,9 @@ body {
     background-color: var(--color-background);
     color: var(--color-primary);
 }
-
+.custom{
+    --color-background:var(--color-background-custom);
+}
 .dark {
     /* Modo oscuro */
     --color-background: #252525;
