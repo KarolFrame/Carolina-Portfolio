@@ -4,7 +4,7 @@ import { SiLinkedin, SiGithub  } from "react-icons/si";
 
 
 const MyDescription = ()=>{
-    const myImage = "/Images/MyPersonalImage.jpg";
+    const myImage = "/Images/MyPersonalImage.png";
     return(<>
         <div className="flex flex-row gap-5">
             <img src={myImage} className="w-[15%] h-[15%] object-cover rounded-lg"/>

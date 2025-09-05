@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './Pages/Home';
 import AppShell from './Components/AppShell';
 import Profile from './Pages/Profile';
+import Skills from './Pages/Skills';
+import Projects from './Pages/Projects';
 
 function App() {
   return (
@@ -13,7 +15,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
-        
+        <Route path="/skills" element={<Skills />} />
+        <Route path="/projects" element={<Projects />} />
       </Routes>
     </AppShell>
     </BrowserRouter>

@@ -23,7 +23,7 @@ const educationData = [
 
 
 const CertificatesItem = ({ degree, institution, years, location }) => (
-    <div className="py-2 border-b border-gray-300 last:border-b-0">
+    <div className="rounded-lg p-3 shadow-md hover:shadow-lg transition">
         <h3 className="text-xl sm:text-2xl font-semibold">{degree}</h3>
         <p className="font-medium my-1">{institution}</p>
         <div className="flex items-center text-gray-600 space-x-4">
@@ -41,7 +41,7 @@ const CertificatesItem = ({ degree, institution, years, location }) => (
 
 const CertificatesSection = () => {
     return (
-        <div className="divide-y divide-gray-300">
+        <div className='flex flex-col gap-3'>
             {educationData.map((item, index) => (
                 <CertificatesItem
                     key={index}
