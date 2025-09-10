@@ -6,6 +6,7 @@ import AppShell from './Components/AppShell';
 import Profile from './Pages/Profile';
 import Skills from './Pages/Skills';
 import Projects from './Pages/Projects';
+import Contact from './Pages/Contact';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/skills" element={<Skills />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </AppShell>
     </BrowserRouter>
