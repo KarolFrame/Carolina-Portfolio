@@ -36,7 +36,7 @@ const HomeContent = () =>{
                 className="md:text-8xl text-2xl font-bold mb-5"
                 variants={itemVariants}
               >
-                WELLCOME TO MY PORTFOLIO
+                WELCOME TO MY PORTFOLIO
               </motion.h1>
               <motion.h1 
                 className="md:text-5xl text-xl font-bold mt-5"
